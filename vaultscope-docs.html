@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VaultScope Technical Documentation</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f8fafc;
+      color: #222;
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Mobile menu toggle button */
+    #mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1000;
+      background: #1e293b;
+      color: white;
+      border: none;
+      padding: 0.5rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+    
+    nav {
+      width: 260px;
+      background: #1e293b;
+      color: #fff;
+      padding: 2rem 1rem 1rem 1rem;
+      box-sizing: border-box;
+      min-height: 100vh;
+      position: sticky;
+      top: 0;
+      transition: left 0.3s ease;
+    }
+    
+    /* Search box */
+    #search-container {
+      margin-bottom: 1.5rem;
+    }
+    
+    #doc-search {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #374151;
+      border-radius: 4px;
+      background: #374151;
+      color: white;
+      box-sizing: border-box;
+    }
+    
+    #doc-search::placeholder {
+      color: #9ca3af;
+    }
+    
+    nav h2 {
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+      color: #60a5fa;
+      letter-spacing: 1px;
+    }
+    
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    nav ul li {
+      margin-bottom: 1.1rem;
+    }
+    
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.05rem;
+      transition: all 0.2s;
+      padding-left: 0.5rem;
+      display: block;
+      border-left: 3px solid transparent;
+    }
+    
+    nav ul li a:hover {
+      color: #60a5fa;
+      padding-left: 0.7rem;
+    }
+    
+    nav ul li a.active {
+      color: #60a5fa;
+      font-weight: 600;
+      border-left: 3px solid #60a5fa;
+      padding-left: 0.7rem;
+    }
+    
+    main {
+      flex: 1;
+      padding: 2.5rem 3rem 2rem 3rem;
+      background: #f8fafc;
+      min-width: 0;
+    }
+    
+    main h1 {
+      color: #2563eb;
+      margin-top: 0;
+      font-size: 2.2rem;
+    }
+    
+    main h2 {
+      color: #2563eb;
+      margin-top: 2.5rem;
+      font-size: 1.4rem;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 0.3rem;
+      transition: opacity 0.3s ease;
+    }
+    
+    main h3 {
+      color: #1e293b;
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      transition: opacity 0.3s ease;
+    }
+    
+    main p, main ul {
+      line-height: 1.7;
+      font-size: 1.05rem;
+      transition: opacity 0.3s ease;
+    }
+    
+    main li {
+      transition: opacity 0.3s ease;
+    }
+    
+    code {
+      background: #e0e7ef;
+      color: #1e293b;
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+      font-size: 0.98em;
+    }
+    
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1rem 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    
+    /* Syntax highlighting */
+    .keyword { color: #60a5fa; }
+    .string { color: #34d399; }
+    .comment { color: #94a3b8; }
+    .number { color: #fbbf24; }
+    
+    /* Example boxes */
+    .example-box {
+      background: #f1f5f9;
+      border-left: 4px solid #2563eb;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0 4px 4px 0;
+    }
+    
+    .example-box h4 {
+      margin-top: 0;
+      color: #2563eb;
+    }
+    
+    @media (max-width: 900px) {
+      #mobile-menu-toggle {
+        display: block !important;
+      }
+      
+      nav {
+        position: fixed;
+        left: -260px;
+        z-index: 999;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      
+      nav.open {
+        left: 0;
+      }
+      
+      main {
+        padding: 1.5rem 1rem;
+        margin-left: 0;
+        width: 100%;
+      }
+      
+      main h1 {
+        margin-top: 3rem;
+      }
+    }
+    
+    /* Overlay for mobile menu */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+    }
+    
+    .overlay.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <button id="mobile-menu-toggle">☰ Menu</button>
+  <div class="overlay" id="overlay"></div>
+  
+  <nav id="nav">
+    <h2>VaultScope Docs</h2>
+    <div id="search-container">
+      <input type="text" id="doc-search" placeholder="Search documentation...">
+    </div>
+    <ul>
+      <li><a href="#introduction">1. Introduction</a></li>
+      <li><a href="#architecture">2. Architecture Overview</a></li>
+      <li><a href="#api">3. API Reference</a></li>
+      <li><a href="#access">4. Access Control & TAP Rules</a></li>
+      <li><a href="#alerting">5. Alerting System</a></li>
+      <li><a href="#rebalancer">6. Rebalancer Engine</a></li>
+      <li><a href="#audit">7. Audit Trail & Compliance</a></li>
+      <li><a href="#deployment">8. Deployment Guide</a></li>
+      <li><a href="#security">9. Security Practices</a></li>
+      <li><a href="#changelog">10. Change Log & Roadmap</a></li>
+    </ul>
+  </nav>
+  
+  <main>
+    <h1>VaultScope Technical Documentation</h1>
+    <p>Welcome to the official documentation for VaultScope. This guide covers architecture, API, deployment, security, and more.</p>
+
+    <h2 id="introduction">1. Introduction</h2>
+    <p><strong>Overview:</strong> VaultScope is a secure, modular platform for digital asset custody, monitoring, and compliance.</p>
+    <ul>
+      <li><strong>Deployment Models:</strong> SaaS API or On-Premise</li>
+      <li><strong>Target Users:</strong> Exchanges, custodians, fintechs, compliance teams</li>
+      <li><strong>Use Cases:</strong> Asset monitoring, automated rebalancing, compliance reporting</li>
+    </ul>
+
+    <h2 id="architecture">2. Architecture Overview</h2>
+    <p>VaultScope is composed of several core components, each responsible for a key function in the custody and monitoring workflow.</p>
+    <ul>
+      <li><strong>Vault Aggregator</strong></li>
+      <li><strong>Alert Engine</strong></li>
+      <li><strong>Audit Logger</strong></li>
+      <li><strong>API Gateway</strong></li>
+      <li><strong>Access Control (RBAC & TAP)</strong></li>
+      <li><strong>Rebalancer Engine</strong></li>
+      <li><strong>Web Dashboard (optional)</strong></li>
+    </ul>
+    <p>Data flows between Fireblocks, fiat banks, and the internal ledger.</p>
+
+    <h2 id="api">3. API Reference</h2>
+    <h3>Authentication</h3>
+    <p>Supports <strong>OAuth2</strong> or <strong>API Key</strong> authentication.</p>
+    
+    <div class="example-box">
+      <h4>API Key Authentication</h4>
+      <p>Include your API key in the Authorization header:</p>
+      <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+    </div>
+    
+    <h3>Endpoints</h3>
+    <ul>
+      <li><code>GET /wallets/balances</code> - Retrieve wallet balances</li>
+      <li><code>GET /nav</code> - Get Net Asset Value</li>
+      <li><code>POST /alerts</code> - Create or update alerts</li>
+      <li><code>GET /audit/logs</code> - Fetch audit logs</li>
+      <li><code>POST /rebalance-rules</code> - Configure rebalancing rules</li>
+    </ul>
+    
+    <h3>Example Requests</h3>
+    <div class="example-box">
+      <h4>Get Wallet Balances</h4>
+      <pre><code><span class="comment">// Request</span>
+<span class="keyword">curl</span> -X GET <span class="string">"https://api.vaultscope.com/wallets/balances"</span> \
+  -H <span class="string">"Authorization: Bearer YOUR_API_KEY"</span> \
+  -H <span class="string">"Content-Type: application/json"</span>
+
+<span class="comment">// Response</span>
+{
+  <span class="string">"wallets"</span>: [
+    {
+      <span class="string">"id"</span>: <span class="string">"hot_wallet_btc"</span>,
+      <span class="string">"asset"</span>: <span class="string">"BTC"</span>,
+      <span class="string">"balance"</span>: <span class="string">"1.25000000"</span>,
+      <span class="string">"usd_value"</span>: <span class="number">52500.00</span>
+    }
+  ]
+}</code></pre>
+    </div>
+    
+    <h3>Webhook Events</h3>
+    <ul>
+      <li><code>balance.alert.triggered</code> - Fired when balance thresholds are breached</li>
+      <li><code>wallet.rebalanced</code> - Sent after successful rebalancing</li>
+      <li><code>user.access.changed</code> - Triggered on permission changes</li>
+    </ul>
+
+    <h2 id="access">4. Access Control & TAP Rules</h2>
+    <ul>
+      <li><strong>Role-based access:</strong> admin, ops, audit</li>
+      <li><strong>TAP Policies:</strong> Approval flows, transaction size limits, whitelisting by jurisdiction/type</li>
+    </ul>
+    
+    <div class="example-box">
+      <h4>Role Permissions</h4>
+      <ul>
+        <li><strong>Admin:</strong> Full system access, user management</li>
+        <li><strong>Ops:</strong> Transaction execution, rebalancing</li>
+        <li><strong>Audit:</strong> Read-only access to logs and reports</li>
+      </ul>
+    </div>
+
+    <h2 id="alerting">5. Alerting System</h2>
+    <ul>
+      <li><strong>Thresholds:</strong> asset, vault, NAV</li>
+      <li><strong>Channels:</strong> Slack, Telegram, Email, Webhook</li>
+      <li><strong>Severity levels:</strong> Info, Warning, Critical</li>
+      <li><strong>Deduplication logic:</strong> Prevents spam notifications</li>
+    </ul>
+
+    <h2 id="rebalancer">6. Rebalancer Engine</h2>
+    <ul>
+      <li>Auto top-up hot wallet</li>
+      <li>Drain excess to cold storage</li>
+      <li>Maintain ratios across stablecoins</li>
+      <li>Vault selection logic</li>
+      <li>Cooldown window</li>
+    </ul>
+    
+    <div class="example-box">
+      <h4>Rebalancing Rules Example</h4>
+      <pre><code>{
+  <span class="string">"rules"</span>: [
+    {
+      <span class="string">"name"</span>: <span class="string">"Hot Wallet BTC"</span>,
+      <span class="string">"asset"</span>: <span class="string">"BTC"</span>,
+      <span class="string">"min_threshold"</span>: <span class="number">0.1</span>,
+      <span class="string">"max_threshold"</span>: <span class="number">2.0</span>,
+      <span class="string">"target_balance"</span>: <span class="number">1.0</span>
+    }
+  ]
+}</code></pre>
+    </div>
+
+    <h2 id="audit">7. Audit Trail & Compliance</h2>
+    <ul>
+      <li>Immutable logging (PostgreSQL / IPFS optional)</li>
+      <li>MASAK / SPK log export format</li>
+      <li>User action history (login, permissions, overrides)</li>
+      <li>Data retention policy</li>
+    </ul>
+
+    <h2 id="deployment">8. Deployment Guide (On-Premise)</h2>
+    <ul>
+      <li>System requirements (CPU, memory, disk)</li>
+      <li>Docker / K8s support</li>
+      <li>Environment variable setup</li>
+      <li>Fireblocks key and API integration</li>
+      <li>Database schema</li>
+      <li>Monitoring & logging (Prometheus/Grafana)</li>
+    </ul>
+    
+    <div class="example-box">
+      <h4>Docker Deployment</h4>
+      <pre><code><span class="comment"># Pull the latest image</span>
+<span class="keyword">docker</span> pull vaultscope/platform:latest
+
+<span class="comment"># Run with environment variables</span>
+<span class="keyword">docker</span> run -d \
+  --name vaultscope \
+  -p <span class="number">8080</span>:<span class="number">8080</span> \
+  -e <span class="string">FIREBLOCKS_API_KEY</span>=your_key \
+  -e <span class="string">DATABASE_URL</span>=postgresql://... \
+  vaultscope/platform:latest</code></pre>
+    </div>
+
+    <h2 id="security">9. Security Practices</h2>
+    <ul>
+      <li>Key management (Fireblocks, .env, Vault)</li>
+      <li>API rate limiting</li>
+      <li>Audit log signing</li>
+      <li>Optional multi-tenancy isolation</li>
+    </ul>
+
+    <h2 id="changelog">10. Change Log & Roadmap</h2>
+    <ul>
+      <li>Versioned API changes</li>
+      <li>Feature roadmap (future chains, ZKP support, MiCA audit tools)</li>
+    </ul>
+    
+    <footer style="margin-top:3rem; color:#888; font-size:0.95rem;">
+      &copy; 2025 VaultScope. All rights reserved.
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
+      const mobileToggle = document.getElementById('mobile-menu-toggle');
+      const nav = document.getElementById('nav');
+      const overlay = document.getElementById('overlay');
+      
+      mobileToggle.addEventListener('click', function() {
+        nav.classList.toggle('open');
+        overlay.classList.toggle('show');
+      });
+      
+      overlay.addEventListener('click', function() {
+        nav.classList.remove('open');
+        overlay.classList.remove('show');
+      });
+      
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+            
+            // Close mobile menu after clicking
+            nav.classList.remove('open');
+            overlay.classList.remove('show');
+          }
+        });
+      });
+
+      // Highlight active section in navigation
+      const sections = document.querySelectorAll('main h2[id]');
+      const navLinks = document.querySelectorAll('nav a');
+      
+      function updateActiveSection() {
+        let current = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          if (window.scrollY >= sectionTop - 100) {
+            current = section.getAttribute('id');
+          }
+        });
+        
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+      
+      window.addEventListener('scroll', updateActiveSection);
+      updateActiveSection(); // Initial call
+      
+      // Search functionality
+      const searchInput = document.getElementById('doc-search');
+      let searchTimeout;
+      
+      searchInput.addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          const searchTerm = e.target.value.toLowerCase().trim();
+          const searchableElements = document.querySelectorAll('main h2, main h3, main p, main li, main pre');
+          
+          if (searchTerm === '') {
+            // Reset all elements to full opacity
+            searchableElements.forEach(element => {
+              element.style.opacity = '1';
+            });
+          } else {
+            // Filter elements based on search term
+            searchableElements.forEach(element => {
+              const text = element.textContent.toLowerCase();
+              if (text.includes(searchTerm)) {
+                element.style.opacity = '1';
+              } else {
+                element.style.opacity = '0.3';
+              }
+            });
+          }
+        }, 300); // Debounce search
+      });
+      
+      // Clear search on escape key
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          this.value = '';
+          this.dispatchEvent(new Event('input'));
+          this.blur();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+      <li><code>balance.alert.triggered</code> - Fired when balance thresholds are breached</li>
+      <li><code>wallet.rebalanced</code> - Sent after successful rebalancing</li>
+      <li><code>user.access.changed</code> - Triggered on permission changes</li>
+    </ul>
+
+    <h2 id="access">4. Access Control & TAP Rules</h2>
+    <ul>
+      <li><strong>Role-based access:</strong> admin, ops, audit</li>
+      <li><strong>TAP Policies:</strong> Approval flows, transaction size limits, whitelisting by jurisdiction/type</li>
+    </ul>
+    
+    <div class="example-box">
+      <h4>Role Permissions</h4>
+      <ul>
+        <li><strong>Admin:</strong> Full system access, user management</li>
+        <li><strong>Ops:</strong> Transaction execution, rebalancing</li>
+        <li><strong>Audit:</strong> Read-only access to logs and reports</li>
+      </ul>
+    </div>
+
+    <h2 id="alerting">5. Alerting System</h2>
+    <ul>
+      <li><strong>Thresholds:</strong> asset, vault, NAV</li>
+      <li><strong>Channels:</strong> Slack, Telegram, Email, Webhook</li>
+      <li><strong>Severity levels:</strong> Info, Warning, Critical</li>
+      <li><strong>Deduplication logic:</strong> Prevents spam notifications</li>
+    </ul>
+
+    <h2 id="rebalancer">6. Rebalancer Engine</h2>
+    <ul>
+      <li>Auto top-up hot wallet</li>
+      <li>Drain excess to cold storage</li>
+      <li>Maintain ratios across stablecoins</li>
+      <li>Vault selection logic</li>
+      <li>Cooldown window</li>
+    </ul>
+    
+    <div class="example-box">
+      <h4>Rebalancing Rules Example</h4>
+      <pre><code>{
+  <span class="string">"rules"</span>: [
+    {
+      <span class="string">"name"</span>: <span class="string">"Hot Wallet BTC"</span>,
+      <span class="string">"asset"</span>: <span class="string">"BTC"</span>,
+      <span class="string">"min_threshold"</span>: <span class="number">0.1</span>,
+      <span class="string">"max_threshold"</span>: <span class="number">2.0</span>,
+      <span class="string">"target_balance"</span>: <span class="number">1.0</span>
+    }
+  ]
+}</code></pre>
+    </div>
+
+    <h2 id="audit">7. Audit Trail & Compliance</h2>
+    <ul>
+      <li>Immutable logging (PostgreSQL / IPFS optional)</li>
+      <li>MASAK / SPK log export format</li>
+      <li>User action history (login, permissions, overrides)</li>
+      <li>Data retention policy</li>
+    </ul>
+
+    <h2 id="deployment">8. Deployment Guide (On-Premise)</h2>
+    <ul>
+      <li>System requirements (CPU, memory, disk)</li>
+      <li>Docker / K8s support</li>
+      <li>Environment variable setup</li>
+      <li>Fireblocks key and API integration</li>
+      <li>Database schema</li>
+      <li>Monitoring & logging (Prometheus/Grafana)</li>
+    </ul>
+    
+    <div class="example-box">
+      <h4>Docker Deployment</h4>
+      <pre><code><span class="comment"># Pull the latest image</span>
+<span class="keyword">docker</span> pull vaultscope/platform:latest
+
+<span class="comment"># Run with environment variables</span>
+<span class="keyword">docker</span> run -d \
+  --name vaultscope \
+  -p <span class="number">8080</span>:<span class="number">8080</span> \
+  -e <span class="string">FIREBLOCKS_API_KEY</span>=your_key \
+  -e <span class="string">DATABASE_URL</span>=postgresql://... \
+  vaultscope/platform:latest</code></pre>
+    </div>
+
+    <h2 id="security">9. Security Practices</h2>
+    <ul>
+      <li>Key management (Fireblocks, .env, Vault)</li>
+      <li>API rate limiting</li>
+      <li>Audit log signing</li>
+      <li>Optional multi-tenancy isolation</li>
+    </ul>
+
+    <h2 id="changelog">10. Change Log & Roadmap</h2>
+    <ul>
+      <li>Versioned API changes</li>
+      <li>Feature roadmap (future chains, ZKP support, MiCA audit tools)</li>
+    </ul>
+    
+    <footer style="margin-top:3rem; color:#888; font-size:0.95rem;">
+      &copy; 2025 VaultScope. All rights reserved.
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
+      const mobileToggle = document.getElementById('mobile-menu-toggle');
+      const nav = document.getElementById('nav');
+      const overlay = document.getElementById('overlay');
+      
+      mobileToggle.addEventListener('click', function() {
+        nav.classList.toggle('open');
+        overlay.classList.toggle('show');
+      });
+      
+      overlay.addEventListener('click', function() {
+        nav.classList.remove('open');
+        overlay.classList.remove('show');
+      });
+      
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+            
+            // Close mobile menu after clicking
+            nav.classList.remove('open');
+            overlay.classList.remove('show');
+          }
+        });
+      });
+
+      // Highlight active section in navigation
+      const sections = document.querySelectorAll('main h2[id]');
+      const navLinks = document.querySelectorAll('nav a');
+      
+      function updateActiveSection() {
+        let current = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          if (window.scrollY >= sectionTop - 100) {
+            current = section.getAttribute('id');
+          }
+        });
+        
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+      
+      window.addEventListener('scroll', updateActiveSection);
+      updateActiveSection(); // Initial call
+      
+      // Search functionality
+      const searchInput = document.getElementById('doc-search');
+      let searchTimeout;
+      
+      searchInput.addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          const searchTerm = e.target.value.toLowerCase().trim();
+          const searchableElements = document.querySelectorAll('main h2, main h3, main p, main li, main pre');
+          
+          if (searchTerm === '') {
+            // Reset all elements to full opacity
+            searchableElements.forEach(element => {
+              element.style.opacity = '1';
+            });
+          } else {
+            // Filter elements based on search term
+            searchableElements.forEach(element => {
+              const text = element.textContent.toLowerCase();
+              if (text.includes(searchTerm)) {
+                element.style.opacity = '1';
+              } else {
+                element.style.opacity = '0.3';
+              }
+            });
+          }
+        }, 300); // Debounce search
+      });
+      
+      // Clear search on escape key
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          this.value = '';
+          this.dispatchEvent(new Event('input'));
+          this.blur();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
